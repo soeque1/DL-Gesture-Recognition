@@ -54,12 +54,12 @@ DETECT_FRAMES_START_ACTION = 4
 DETECT_FRAMES_END_ACTION = 4
 # darkflow所需配置
 DARKFLOW_OPTIONS = {
-    "model": "cfg/yolo-gestures.cfg",
-    "load": "model/yolo-gestures_15000.weights",
+    "model": "./cfg/yolo-gestures_15000.cfg",
+    "load": "./model/yolo-gestures_15000.weights",
     "threshold": 0.1,
-    'gpu': 0.5,
     "json": True
 }
+#    'gpu': 0.5,
 
 
 class Communicate(QObject):
@@ -121,9 +121,8 @@ class Thread(QThread):
 
                 if ret:
                     self._gesture_rec.detection(frame_total, frame)
-
                     upload_total = self._gesture_rec.check_upload(frame_total, upload_total, frame, self._is_upload)
-
+                    
                     category_dict = self._gesture_rec.check_draw_text()
                     if category_dict is not None:
                         print(category_dict)
@@ -169,8 +168,10 @@ class Thread(QThread):
                         self.changeText.emit("请开始做动作")
                         self._gesture_rec.start_action()
 
-                    if self._is_upload[0] and self._queue_detect.getAliveSum() <= \
-                            (DETECT_FRAMES_TOTAL - DETECT_FRAMES_END_ACTION):
+                    #print(self._queue_detect.getAliveSum())
+                    #print(DETECT_FRAMES_TOTAL - DETECT_FRAMES_END_ACTION)
+                    #if self._is_upload[0] and self._queue_detect.getAliveSum() <= (DETECT_FRAMES_TOTAL - DETECT_FRAMES_END_ACTION):
+                    if  self._is_upload[0] self._queue_detect.getAliveSum() >= (DETECT_FRAMES_TOTAL - DETECT_FRAMES_END_ACTION):
                         # 动作结束，预测
                         self._is_upload[0] = False  # 标识识别结束
                         self._gesture_rec.end_action(is_upload=self._is_upload)

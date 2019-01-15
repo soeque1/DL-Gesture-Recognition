@@ -14,7 +14,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 class LimitQueue(object):
 
-    def __init__(self, limit):
+    def __init__(self, limit=5):
         self._queue = queue.Queue(maxsize=limit)
         self._lock = threading.Lock()
         self._aliveSum = 0

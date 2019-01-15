@@ -34,7 +34,6 @@ lists = [
     "非手势动作"  # 第13个分类！
 ]
 
-
 parser = argparse.ArgumentParser(description='WebCam Network')
 parser.add_argument('-s', '--server-address', default='http://127.0.0.1:5000', type=str,
                     help='手势识别服务器地址')
@@ -91,8 +90,10 @@ class Thread(QThread):
             self._event.wait()
 
         # 获取识别对象
+        import pdb; pdb.set_trace()
         self._gesture_rec = GestureRec(server_address=self._args.server_address, upload_size=UPLOAD_SIZE,
-                                       frame_distance=self._frame_distance[0], queue_draw=self._queue_draw, pool=self._pool)
+                                       frame_distance=self._frame_distance[0], queue_draw=self._queue_draw, 
+                                       pool=self._pool)
 
         frame_total = 0
         upload_total = 0
