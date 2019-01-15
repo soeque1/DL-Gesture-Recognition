@@ -10,21 +10,21 @@ import threading
 import time
 import math
 
+#    
 labels = {
-    "Doing other things": "非手势动作",
-    "Drumming Fingers": "抖动手指",
-    "No gesture": "非手势动作",
-    "Pulling Two Fingers In": "拉近两个手指",
-    "Pushing Two Fingers Away": "推远两个手指",
-    "Shaking Hand": "抖动手",
-    "Sliding Two Fingers Down": "向下滑动两个手指",
-    "Swiping Left": "向左滑动",
-    "Thumb Down": "拇指向下",
-    "Thumb Up": "竖起大拇指",
-    "Zooming In With Full Hand": "整只手放大",
-    "Zooming In With Two Fingers": "两个手指放大",
-    "Zooming Out With Full Hand": "整只手缩小",
-    "Zooming Out With Two Fingers": "两个手指缩小",
+    "Doing other things": "Doing other things",
+    "Drumming Fingers": "Drumming Fingers",
+    "Pulling Two Fingers In": "Pulling Two Fingers In",
+    "Pushing Two Fingers Away": "Pushing Two Fingers Away",
+    "Shaking Hand": "Shaking Hand",
+    "Sliding Two Fingers Down": "Sliding Two Fingers Down",
+    "Swiping Left": "Swiping Left",
+    "Thumb Down": "Thumb Down",
+    "Thumb Up": "Thumb Up",
+    "Zooming In With Full Hand": "Zooming In With Full Hand",
+    "Zooming In With Two Fingers": "Zooming In With Two Fingers",
+    "Zooming Out With Full Hand": "Zooming Out With Full Hand",
+    "Zooming Out With Two Fingers": "Zooming Out With Two Fingers",
 }
 
 

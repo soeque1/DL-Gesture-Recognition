@@ -1,0 +1,12 @@
+flask
+pillow
+moviepy
+scikit-learn
+scipy
+flask_uploads
+requests
+opencv-python
+PyQt5
+torch==0.3.1
+torchvision
+

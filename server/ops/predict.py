@@ -80,12 +80,14 @@ class Predict(object):
                   img_feature_dim=img_feature_dim, print_spec=False)
 
         weights = weight
-        checkpoint = torch.load(weights)
+        #checkpoint = torch.load(weights)
+        checkpoint = torch.load(weights, map_location=lambda storage, loc: storage)
         # print("model epoch {} best prec@1: {}".format(checkpoint['epoch'], checkpoint['best_prec1']))
 
         base_dict = {'.'.join(k.split('.')[1:]): v for k, v in list(checkpoint['state_dict'].items())}
         self.net.load_state_dict(base_dict)
-        self.net.cuda().eval()
+        #self.net.cuda().eval()
+        self.net.eval()
 
         # Initialize frame transforms.
 
@@ -119,8 +121,10 @@ class Predict(object):
         """
         # Make video prediction.
         data = self.transform(frames)
+        #input_var = torch.autograd.Variable(data.view(-1, 3, data.size(1), data.size(2)),
+        #                                    volatile=True).unsqueeze(0).cuda()
         input_var = torch.autograd.Variable(data.view(-1, 3, data.size(1), data.size(2)),
-                                            volatile=True).unsqueeze(0).cuda()
+                                            volatile=True).unsqueeze(0)
         logits = self.net(input_var)
         h_x = torch.mean(F.softmax(logits, 1), dim=0).data
         probs, idx = h_x.sort(0, True)
