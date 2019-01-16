@@ -210,4 +210,4 @@ def render_frames(frames, prediction):
 
 if __name__ == "__main__":
     predict = Predict()
-    predict.runWithDiskImage("/home/zz/workspace/GestureRec/frames")
+    predict.runWithDiskImage("/Users/hyungjunkim/repo/DL-Gesture-Recognition/server/frames")

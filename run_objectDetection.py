@@ -21,19 +21,19 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 # 12分类
 lists = [
-    "抖动手指",
-    "抖动手",
-    "拉近两个手指",
-    "两个手指放大",
-    "两个手指缩小",
-    "拇指向下",
-    "竖起大拇指",
-    "推远两个手指",
-    "向下滑动两个手指",
-    "向左滑动",
-    "整只手放大",
-    "整只手缩小",
-    "非手势动作"  # 第13个分类！
+    "Drumming Fingers",
+    "Shaking Hand",
+    "Pulling Two Fingers In",
+    "Zooming In With Two Fingers",
+    "Zooming Out With Two Fingers",
+    "Thumb Down",
+    "Thumb Up",
+    "Pushing Two Fingers Away",
+    "Sliding Two Fingers Down",
+    "Swiping Left",
+    "Zooming In With Full Hand",
+    "Zooming Out With Full Hand",
+    "No gesture",  # 第13个分类！
 ]
 
 parser = argparse.ArgumentParser(description='WebCam Network')
@@ -45,9 +45,9 @@ parser.add_argument('-d', '--device', default=0, type=int,
 # 图片上传大小（约27k）
 UPLOAD_SIZE = (176, 100)
 # 并发上传图片的线程池数
-POOL_SIZE = 5
+POOL_SIZE = 1
 # 自动识别判定总帧数（即通过n帧来判定）
-DETECT_FRAMES_TOTAL = 5
+DETECT_FRAMES_TOTAL = 14
 # 动作开始所需帧数（不大于总帧数）
 DETECT_FRAMES_START_ACTION = 4
 # 动作结束所需帧数（不大于总帧数）
@@ -97,6 +97,7 @@ class Thread(QThread):
         self.flag = True
         # 上传标志位
         self._is_upload = [None]
+        self._is_model_run = True
 
     def run(self):
         # 初始化阶段不执行识别逻辑
@@ -124,8 +125,8 @@ class Thread(QThread):
                     upload_total = self._gesture_rec.check_upload(frame_total, upload_total, frame, self._is_upload)
                     
                     category_dict = self._gesture_rec.check_draw_text()
+                    print(category_dict)
                     if category_dict is not None:
-                        print(category_dict)
 
                         # 计算剩余进度条值
                         divided = self._processbar_generator(category_dict)
@@ -166,24 +167,35 @@ class Thread(QThread):
                         self._is_upload[0] = True  # 标识识别开始
                         self.changeBorderToNormal.emit()
                         self.changeText.emit("请开始做动作")
+                        ## remove frames & record
                         self._gesture_rec.start_action()
+                        self._is_model_run = False
 
                     #print(self._queue_detect.getAliveSum())
                     #print(DETECT_FRAMES_TOTAL - DETECT_FRAMES_END_ACTION)
-                    #if self._is_upload[0] and self._queue_detect.getAliveSum() <= (DETECT_FRAMES_TOTAL - DETECT_FRAMES_END_ACTION):
                     print ('@', self._is_upload[0])
-                    print ('@@', self._queue_detect.getAliveSum())
-                    print ('@@@', (DETECT_FRAMES_TOTAL - DETECT_FRAMES_END_ACTION))
-                    if  self._is_upload[0] and self._queue_detect.getAliveSum() <= (DETECT_FRAMES_TOTAL - DETECT_FRAMES_END_ACTION):
+                    print ('@@', self._is_model_run)
+                    print ('@@@', self._queue_detect.getAliveSum())
+                    print ('@@@@', (DETECT_FRAMES_TOTAL - DETECT_FRAMES_END_ACTION))
+                    print ('@@@@@', (DETECT_FRAMES_TOTAL))
+                    if (self._is_model_run is False) and (self._queue_detect.getAliveSum() == (DETECT_FRAMES_TOTAL)):
+                    #if  (self._is_upload[0]) and (self._queue_detect.getAliveSum() == 20):
                         # 动作结束，预测
                         self._is_upload[0] = False  # 标识识别结束
-                        self._gesture_rec.end_action(is_upload=self._is_upload)
+                        self._is_model_run = True
+                        self._gesture_rec.end_action()
+
+                        time.sleep(5)
+                        while category_dict is None:
+                            category_dict = self._gesture_rec.check_draw_text()
 
                     self._show_frame(frame)
+                    
             else:
                 # 初始化
                 self.flag = True
                 self._is_upload = [None]
+                self._queue_detect._aliveSum = 0
 
                 self._show_picture("resource/white.jpg")
                 self.changeText.emit("系统停止")
