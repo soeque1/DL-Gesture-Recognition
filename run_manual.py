@@ -19,20 +19,21 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 # 12分类
 lists = [
-    "抖动手指",
-    "抖动手",
-    "拉近两个手指",
-    "两个手指放大",
-    "两个手指缩小",
-    "拇指向下",
-    "竖起大拇指",
-    "推远两个手指",
-    "向下滑动两个手指",
-    "向左滑动",
-    "整只手放大",
-    "整只手缩小",
-    "非手势动作"  # 第13个分类！
+    "Drumming Fingers",
+    "Shaking Hand",
+    "Pulling Two Fingers In",
+    "Zooming In With Two Fingers",
+    "Zooming Out With Two Fingers",
+    "Thumb Down",
+    "Thumb Up",
+    "Pushing Two Fingers Away",
+    "Sliding Two Fingers Down",
+    "Swiping Left",
+    "Zooming In With Full Hand",
+    "Zooming Out With Full Hand",
+    "No gesture",  # 第13个分类！
 ]
+
 
 parser = argparse.ArgumentParser(description='WebCam Network')
 parser.add_argument('-s', '--server-address', default='http://127.0.0.1:5000', type=str,
@@ -86,20 +87,18 @@ class Thread(QThread):
     def run(self):
         # 初始化阶段不执行识别逻辑
         if not self._event.isSet():
-            self.changeText.emit("系统正在初始化，请稍等...")
+            self.changeText.emit("The system is initializing.")
             self._event.wait()
 
         # 获取识别对象
-        import pdb; pdb.set_trace()
         self._gesture_rec = GestureRec(server_address=self._args.server_address, upload_size=UPLOAD_SIZE,
-                                       frame_distance=self._frame_distance[0], queue_draw=self._queue_draw, 
-                                       pool=self._pool)
+                                       frame_distance=self._frame_distance[0], queue_draw=self._queue_draw, pool=self._pool)
 
         frame_total = 0
         upload_total = 0
         if not self._cap_video.isOpened():
             self._cap_video = cv2.VideoCapture(self._args.device)
-            self.changeText.emit("系统已重启")
+            self.changeText.emit("The system has been restarted.")
         while self._cap_video.isOpened():
             if self.flag == 1:
                 ret, frame = self._cap_video.read()
@@ -125,9 +124,9 @@ class Thread(QThread):
                         show_category = max(category_dict, key=category_dict.get)
                         self.changeText.emit(show_category)
 
-                        if show_category == "非手势动作":
+                        if show_category in ["No gesture", "Doing other things"]:
                             for category in lists:
-                                if category == "非手势动作":
+                                if category in ["No gesture", "Doing other things"]:
                                     continue
 
                                 self.changeProcessbar.emit((lists.index(category), 0))
@@ -138,15 +137,18 @@ class Thread(QThread):
 
                         # 同时更新12个进度条
                         for category in lists:
-                            if category == "非手势动作":
+                            if category in ["No gesture", "Doing other things"]:
                                 continue
 
                             if category in category_dict:
                                 self.changeProcessbar.emit((lists.index(category), category_dict[category]))
 
-                            else:
-                                self.changeProcessbar.emit((lists.index(category), divided[divided_index]))
-                                divided_index += 1
+                            else: 
+                                try:
+                                    self.changeProcessbar.emit((lists.index(category), divided[divided_index]))
+                                    divided_index += 1
+                                except Exception as e:
+                                    print(e)
 
                     self._show_frame(frame)
             else:
@@ -155,7 +157,7 @@ class Thread(QThread):
                 self.flag = True
 
                 self._show_picture("resource/white.jpg")
-                self.changeText.emit("系统停止")
+                self.changeText.emit("Stop")
                 self._cap_video.release()
 
     def _processbar_generator(self, category_dict):
@@ -170,7 +172,7 @@ class Thread(QThread):
             return None
 
         nums = 12 - len(category_dict)
-        if "非手势动作" in category_dict:
+        if "No gesture" in category_dict:
             nums += 1
 
         # 当总值少于分配个数时，直接返回
@@ -196,7 +198,7 @@ class Thread(QThread):
             else:
                 # 动作开始，上传图片
                 self.changeBorderToNormal.emit()
-                self.changeText.emit("请开始做动作")
+                self.changeText.emit("Start")
                 self._is_upload[0] = True
                 self._gesture_rec.start_action()
 
@@ -224,7 +226,7 @@ class Thread(QThread):
         """计算保存帧画面间距"""
         # Number of frames to capture
         num_frames = 120
-        print("系统初始化...")
+        print("Initialization...")
         print("Capturing {0} frames".format(num_frames))
 
         # Start time
@@ -248,7 +250,7 @@ class Thread(QThread):
         print("Save distance: %s" % distance)
 
         self._frame_distance.append(distance)
-        self.changeText.emit("系统初始化完毕")
+        self.changeText.emit("System initialization is complete.")
 
         event.set()
 
@@ -467,7 +469,7 @@ class Ui_MainWindow(QWidget):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "手语识别系统"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Jesture recognition system"))
         self.toolButton.setText(_translate("MainWindow", "..."))
         self.toolButton_2.setText(_translate("MainWindow", "..."))
         self.toolButton_3.setText(_translate("MainWindow", "..."))
@@ -480,9 +482,9 @@ class Ui_MainWindow(QWidget):
         self.toolButton_10.setText(_translate("MainWindow", "..."))
         self.toolButton_11.setText(_translate("MainWindow", "..."))
         self.toolButton_12.setText(_translate("MainWindow", "..."))
-        self.pushButton.setText(_translate("MainWindow", "开始"))
-        self.pushButton_2.setText(_translate("MainWindow", "结束"))
-        self.textEdit.setText("系统初始化...")
+        self.pushButton.setText(_translate("MainWindow", "Start"))
+        self.pushButton_2.setText(_translate("MainWindow", "End"))
+        self.textEdit.setText("Initialization...")
 
     def updateProcessBar(self, val):
         self.progressList[val[0]].setValue(val[1])

@@ -139,9 +139,9 @@ class Thread(QThread):
                         # 显示文本
                         show_category = max(category_dict, key=category_dict.get)
                         self.changeText.emit(show_category)
-                        if show_category == "非手势动作":
+                        if show_category in ["No gesture", "Doing other things"]:
                             for category in lists:
-                                if category == "非手势动作":
+                                if category in ["No gesture", "Doing other things"]:
                                     continue
 
                                 self.changeProcessbar.emit((lists.index(category), 0))
@@ -152,7 +152,7 @@ class Thread(QThread):
 
                         # 同时更新12个进度条
                         for category in lists:
-                            if category == "非手势动作":
+                            if category in ["No gesture", "Doing other things"]:
                                 continue
 
                             if category in category_dict:
@@ -171,7 +171,10 @@ class Thread(QThread):
                     #print(self._queue_detect.getAliveSum())
                     #print(DETECT_FRAMES_TOTAL - DETECT_FRAMES_END_ACTION)
                     #if self._is_upload[0] and self._queue_detect.getAliveSum() <= (DETECT_FRAMES_TOTAL - DETECT_FRAMES_END_ACTION):
-                    if  self._is_upload[0] self._queue_detect.getAliveSum() >= (DETECT_FRAMES_TOTAL - DETECT_FRAMES_END_ACTION):
+                    print ('@', self._is_upload[0])
+                    print ('@@', self._queue_detect.getAliveSum())
+                    print ('@@@', (DETECT_FRAMES_TOTAL - DETECT_FRAMES_END_ACTION))
+                    if  self._is_upload[0] and self._queue_detect.getAliveSum() <= (DETECT_FRAMES_TOTAL - DETECT_FRAMES_END_ACTION):
                         # 动作结束，预测
                         self._is_upload[0] = False  # 标识识别结束
                         self._gesture_rec.end_action(is_upload=self._is_upload)
